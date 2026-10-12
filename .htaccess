@@ -1,0 +1,4 @@
+# Dùng khi đặt dự án trong htdocs (XAMPP): chuyển request vào thư mục public/
+RewriteEngine On
+RewriteRule ^$ public/ [L]
+RewriteRule ^((?!public/).*)$ public/$1 [L]
