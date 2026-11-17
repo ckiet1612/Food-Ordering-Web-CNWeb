@@ -1,13 +1,18 @@
-<section class="hero hero--product hero--plain">
+<section class="hero hero--product hero--plain yumio-hero">
+    <div class="hero-spark hero-spark--one" aria-hidden="true">✳</div><div class="hero-spark hero-spark--two" aria-hidden="true">✷</div>
+    <div class="hero-plate" data-parallax="18">
     <?php if ($heroFood): ?>
         <img class="hero__product" src="<?= image_url($heroFood['image']) ?>" alt="" fetchpriority="high">
     <?php endif; ?>
+        <span class="yumio-sticker hero-sticker">THÊM CHÚT<br><b>NGON!</b></span>
+        <span class="hero-handnote" aria-hidden="true">Bữa vui ở đây ↗</span>
+    </div>
     <div class="hero__content">
-        <p class="hero__brand">YUMIO</p>
-        <h1 class="hero__title"><?= mb_strtoupper('Giòn rụm') ?><br><?= mb_strtoupper('nóng hổi') ?></h1>
-        <p class="hero__lead">Gà tẩm 11 loại gia vị chiên mới mỗi giờ, burger nướng tại chỗ — đồ ăn nhanh nhưng ngon thật.</p>
+        <p class="hero__brand"><span aria-hidden="true">✦</span> ĐÓI BỤNG? ĐÚNG CHỖ RỒI.</p>
+        <h1 class="hero__title">GIÒN RỤM.<br><span>VUI HẾT CỠ.</span></h1>
+        <p class="hero__lead">Gà giòn, burger đầy vị, combo vừa bụng. Một bữa thật ngon cho những chiếc bụng không muốn chờ.</p>
         <div class="hero__actions">
-            <a href="<?= url('/menu') ?>" class="btn btn--light btn--lg">Đặt món ngay</a>
+            <a href="<?= url('/menu') ?>" class="btn btn--light btn--lg">Cho mình xem món <?= icon('right', 24) ?></a>
             <?php if ($heroFood): ?>
                 <a href="<?= url('/foods/' . $heroFood['slug']) ?>" class="hero__tag"><?= e($heroFood['name']) ?> · <?= format_price($heroFood['price']) ?></a>
             <?php endif; ?>
@@ -15,9 +20,17 @@
     </div>
 </section>
 
+<div class="service-strip" aria-label="Đặt món tại Yumio">
+    <span><?= icon('bag', 20) ?> Chọn món yêu thích</span>
+    <span><?= icon('truck', 20) ?> Phí giao <?= format_price(App\Models\Order::SHIPPING_FEE) ?></span>
+    <span><?= icon('check', 20) ?> Miễn phí từ <?= format_price(App\Models\Order::FREE_SHIPPING_FROM) ?></span>
+    <a href="<?= url(auth() ? '/orders' : '/login') ?>">Theo dõi đơn của bạn <?= icon('right', 18) ?></a>
+</div>
+
 <?php if ($featured): ?>
-    <section class="section">
-        <h2 class="section-title">Thực đơn</h2>
+    <section class="section home-featured" data-reveal>
+        <p class="eyebrow home-eyebrow">Món quen, vị ngon</p>
+        <h2 class="section-title">Hôm nay, ăn thật đã.</h2>
         <?php $carouselFoods = $featured; $carouselLabel = 'Món nổi bật'; require BASE_PATH . '/app/Views/partials/carousel.php'; ?>
         <div class="section-cta">
             <a href="<?= url('/menu') ?>" class="btn">Xem thực đơn</a>
@@ -25,23 +38,23 @@
     </section>
 <?php endif; ?>
 
-<section class="section section--tint feature">
-    <h2 class="section-title">Combo trong vài phút</h2>
+<section class="section section--tint feature combo-story">
+    <div class="container combo-story__layout">
+    <div class="combo-story__copy" data-reveal><p class="eyebrow">Một combo, đủ cuộc vui</p><h2 class="section-title">Hợp cạ.<br><em>Hợp cả bụng.</em></h2>
+        <p>Món chính đậm vị, khoai giòn rôm rốp, thêm một ngụm mát lạnh. Khỏi chọn từng món — Yumio đã ghép một bữa ngon cho bạn.</p>
+        <a href="<?= url('/menu/combo') ?>" class="btn btn--solid btn--lg">Khám phá combo <?= icon('right', 22) ?></a>
+    </div>
     <?php if ($featureFood): ?>
-        <a href="<?= url('/foods/' . $featureFood['slug']) ?>" class="feature__media" style="--tile-bg: <?= e($featureFood['bg_color']) ?>">
+        <a href="<?= url('/foods/' . $featureFood['slug']) ?>" class="feature__media" data-reveal>
             <img src="<?= image_url($featureFood['image']) ?>" alt="<?= e($featureFood['name']) ?>" loading="lazy">
             <span class="feature__chip"><?= e($featureFood['name']) ?> · <?= format_price($featureFood['price']) ?></span>
         </a>
     <?php endif; ?>
-    <div class="container">
-        <p class="serif-lead">Mỗi combo Yumio được kết hợp sẵn giữa món chính, món ăn kèm và đồ uống. Đủ no cho bữa trưa vội, đủ vui cho buổi tối cùng bạn bè — và luôn có giá tốt hơn khi gọi lẻ.</p>
-        <span class="divider-v"></span>
-        <a href="<?= url('/menu/combo') ?>" class="btn">Khám phá combo</a>
     </div>
 </section>
 
 <?php if ($categories): ?>
-    <section class="section">
+    <section class="section home-categories" data-reveal>
         <div class="section-head">
             <h2 class="section-title">Hôm nay bạn thèm gì?</h2>
         </div>
@@ -61,7 +74,7 @@
 <section class="section section--tint">
     <div class="section-head">
         <h2 class="serif-title">Tìm Yumio</h2>
-        <p>Hơn 30 cửa hàng tại Hà Nội, TP. Hồ Chí Minh và Đà Nẵng. Ghé ăn tại chỗ, mang đi hoặc đặt giao tận nơi.</p>
+        <p>Các địa điểm minh hoạ tại Hà Nội, TP. Hồ Chí Minh và Đà Nẵng cho bản demo Yumio.</p>
     </div>
     <div class="container store-list">
         <?php foreach ($stores as $store): ?>
@@ -85,8 +98,8 @@
                 <p class="eyebrow">Yumio Club</p>
                 <h2 class="serif-title">Thành viên luôn được ăn ngon hơn</h2>
                 <ul>
-                    <li><?= icon('check', 20) ?> Lưu địa chỉ, đặt lại món yêu thích chỉ với một chạm</li>
-                    <li><?= icon('check', 20) ?> Theo dõi đơn hàng theo thời gian thực</li>
+                    <li><?= icon('check', 20) ?> Xem lại món và thông tin trong lịch sử đặt hàng</li>
+                    <li><?= icon('check', 20) ?> Theo dõi từng bước chuẩn bị và giao hàng</li>
                     <li><?= icon('check', 20) ?> Miễn phí giao hàng cho đơn từ <?= format_price(App\Models\Order::FREE_SHIPPING_FROM) ?></li>
                 </ul>
                 <a href="<?= url('/register') ?>" class="btn btn--solid btn--lg">Tham gia miễn phí</a>

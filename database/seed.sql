@@ -1,18 +1,14 @@
 -- Dữ liệu mẫu cho Yumio (sinh tự động từ danh sách ảnh sản phẩm)
 USE yumio;
 
-SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE order_items;
-TRUNCATE orders;
-TRUNCATE foods;
-TRUNCATE categories;
-TRUNCATE users;
-SET FOREIGN_KEY_CHECKS = 1;
+-- Chỉ dùng cho database mới, trống. Không chạy lại trên database đang sử dụng.
+-- Dùng scripts/setup.php để kiểm tra database trống trước khi nạp.
 
 -- Tài khoản demo: admin@yumio.vn / admin123 — khach@yumio.vn / 123456
 INSERT INTO users (id, name, email, password, phone, address, role) VALUES
 (1, 'Quản trị viên', 'admin@yumio.vn', '$2y$12$0JSBcHch5UsBNeSnxM4.lOmahHX6RCBnHYYnYmOSruhDwxfrfLPWW', '0901234567', '1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội', 'admin'),
-(2, 'Nguyễn Văn An', 'khach@yumio.vn', '$2y$12$qx//rdpdYq8OOBWY9Ov75uux52itfmx/9bkd55N20p.ROJOr36biy', '0912345678', '144 Xuân Thuỷ, Cầu Giấy, Hà Nội', 'customer');
+(2, 'Nguyễn Văn An', 'khach@yumio.vn', '$2y$12$qx//rdpdYq8OOBWY9Ov75uux52itfmx/9bkd55N20p.ROJOr36biy', '0912345678', '144 Xuân Thuỷ, Cầu Giấy, Hà Nội', 'customer'),
+(3, 'Nhân viên giao hàng demo', 'shipper@yumio.vn', '$2y$12$qx//rdpdYq8OOBWY9Ov75uux52itfmx/9bkd55N20p.ROJOr36biy', '0909876543', NULL, 'shipper');
 
 INSERT INTO categories (id, name, slug, description, image, color, sort_order) VALUES
 (1, 'Gà rán', 'ga-ran', 'Gà tẩm bột chiên giòn rụm, mọng nước bên trong.', 'assets/images/foods/ga-ran-truyen-thong.webp', '#f6893b', 1),

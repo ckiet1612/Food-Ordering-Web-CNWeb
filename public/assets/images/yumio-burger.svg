@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 560" fill="none">
+<title>Burger Yumio, minh hoạ nguyên bản</title>
+<ellipse cx="326" cy="486" rx="211" ry="25" fill="#211b18" opacity=".12"/>
+<g stroke="#211b18" stroke-width="7" stroke-linejoin="round">
+<path d="M124 255c-9-104 73-175 198-175s202 64 202 175c-134 22-267 21-400 0Z" fill="#F7BD47"/>
+<path d="M147 228c7-79 69-128 166-130" stroke="#FFDF83" stroke-width="12" stroke-linecap="round"/>
+<path d="m207 145 14 10m59-32 13 10m58-5 14 8m59 19 10 12m-179 18 14 6m72-8 14 5m68 18 11 8" stroke="#fff9ec" stroke-width="9" stroke-linecap="round"/>
+<path d="M123 272c20-30 36 3 56-13 23-18 38 15 61-2 24-18 41 14 64-1 26-18 44 15 67 0 24-16 39 16 62 1 24-15 40 13 66 0l28 19-11 38-387 2Z" fill="#496749"/>
+<path d="M133 309c106-12 266-13 380 0v36H133Z" fill="#E74632"/>
+<path d="m130 340 151-8 56 53 47-47 132 6-18 48-365-3Z" fill="#FFDA59"/>
+<path d="M129 373c84-17 303-21 389-1 16 28 8 49-18 56H149c-27-10-30-28-20-55Z" fill="#744735"/>
+<path d="m158 393 37-4m38 9 29-3m129-4 32 3m35-4 26 5" stroke="#A76B42" stroke-width="9" stroke-linecap="round"/>
+<path d="M130 423c109 11 270 13 386 0-4 47-33 64-81 67H211c-50-2-76-18-81-67Z" fill="#F7BD47"/>
+<path d="M168 452c82 15 224 13 305 0" stroke="#FFDF83" stroke-width="10" stroke-linecap="round"/>
+</g>
+<g stroke="#211b18" stroke-width="6" stroke-linecap="round"><path d="m75 180-29-8m52-41-13-25m465 81 28-12m-39-48 15-24"/><path d="m318 27 4 19m-13-10 20-2" stroke="#D82E27"/></g>
+<circle cx="282" cy="220" r="6" fill="#211b18"/><circle cx="365" cy="220" r="6" fill="#211b18"/><path d="M305 233q17 17 34-1" stroke="#211b18" stroke-width="5" stroke-linecap="round"/>
+</svg>

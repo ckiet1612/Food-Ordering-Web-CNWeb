@@ -13,8 +13,8 @@ class FoodController extends Controller
 {
     private const RULES = [
         'name'        => 'required|max:150',
-        'category_id' => 'required|numeric',
-        'price'       => 'required|numeric',
+        'category_id' => 'required|positive_integer',
+        'price'       => 'required|positive_integer|max:12',
         'description' => 'max:1000',
         'bg_color'    => 'required',
     ];
@@ -101,6 +101,10 @@ class FoodController extends Controller
 
     private function payload(array $data): array
     {
+        if (Category::find((int) $data['category_id']) === null) {
+            flash('error', 'Danh mục không tồn tại.');
+            $this->redirect('/admin/foods');
+        }
         return [
             'name'         => $data['name'],
             'category_id'  => (int) $data['category_id'],

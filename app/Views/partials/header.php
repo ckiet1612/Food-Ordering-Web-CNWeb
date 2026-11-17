@@ -1,4 +1,4 @@
-<?php $navCategories = array_slice(App\Models\Category::ordered(), 0, 4); ?>
+<?php $navCategories = array_slice($navigationCategories ?? [], 0, 4); ?>
 <header class="site-header" data-header>
     <div class="header-top">
         <div class="header-side">
@@ -23,6 +23,9 @@
                     <div class="popover" role="menu">
                         <p class="popover__title">Xin chào, <?= e(auth()['name']) ?></p>
                         <a href="<?= url('/orders') ?>" role="menuitem"><?= icon('receipt', 18) ?> Đơn hàng của tôi</a>
+                        <?php if ((auth()['role'] ?? '') === 'shipper'): ?>
+                            <a href="<?= url('/shipper') ?>" role="menuitem"><?= icon('truck', 18) ?> Đơn giao của tôi</a>
+                        <?php endif; ?>
                         <?php if (is_admin()): ?>
                             <a href="<?= url('/admin') ?>" role="menuitem"><?= icon('grid', 18) ?> Trang quản trị</a>
                         <?php endif; ?>
@@ -63,7 +66,7 @@
     </div>
     <nav class="nav-sheet__links">
         <a href="<?= url('/menu') ?>">Thực đơn</a>
-        <?php foreach (App\Models\Category::ordered() as $navCategory): ?>
+        <?php foreach ($navigationCategories ?? [] as $navCategory): ?>
             <a href="<?= url('/menu/' . $navCategory['slug']) ?>"><?= e($navCategory['name']) ?></a>
         <?php endforeach; ?>
         <a href="<?= url('/about') ?>">Về Yumio</a>
@@ -72,6 +75,7 @@
     </nav>
     <div class="nav-sheet__foot">
         <?php if (auth()): ?>
+            <?php if ((auth()['role'] ?? '') === 'shipper'): ?><a href="<?= url('/shipper') ?>" class="btn btn--block">Đơn giao của tôi</a><?php endif; ?>
             <a href="<?= url('/orders') ?>" class="btn btn--block">Đơn hàng của tôi</a>
         <?php else: ?>
             <a href="<?= url('/login') ?>" class="btn btn--solid btn--block">Đăng nhập</a>

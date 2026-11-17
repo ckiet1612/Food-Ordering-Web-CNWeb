@@ -21,6 +21,8 @@ class Database
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES   => false,
             ]);
+            // XAMPP có thể tắt strict mode: tránh MySQL âm thầm cắt/tràn dữ liệu đơn hàng.
+            self::$connection->exec("SET SESSION sql_mode = CONCAT_WS(',', @@sql_mode, 'STRICT_TRANS_TABLES')");
         }
 
         return self::$connection;

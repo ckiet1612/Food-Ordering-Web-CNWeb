@@ -12,6 +12,7 @@ class Validator
         'email'    => ':Field không đúng định dạng.',
         'phone'    => ':Field phải gồm 10 chữ số, bắt đầu bằng 0.',
         'numeric'  => ':Field phải là số.',
+        'positive_integer' => ':Field phải là số nguyên dương.',
         'min'      => ':Field phải có ít nhất :param ký tự.',
         'max'      => ':Field không được vượt quá :param ký tự.',
         'in'       => ':Field không hợp lệ.',
@@ -23,6 +24,10 @@ class Validator
         $errors = [];
 
         foreach ($rules as $field => $ruleString) {
+            if (isset($data[$field]) && !is_scalar($data[$field])) {
+                $errors[$field] = ($labels[$field] ?? $field) . ' không hợp lệ.';
+                continue;
+            }
             $value = trim((string) ($data[$field] ?? ''));
             $label = $labels[$field] ?? $field;
 
@@ -54,10 +59,11 @@ class Validator
             'email'    => filter_var($value, FILTER_VALIDATE_EMAIL) !== false,
             'phone'    => (bool) preg_match('/^0\d{9}$/', $value),
             'numeric'  => is_numeric($value),
+            'positive_integer' => filter_var($value, FILTER_VALIDATE_INT) !== false && (int) $value > 0,
             'min'      => mb_strlen($value) >= (int) $param,
             'max'      => mb_strlen($value) <= (int) $param,
             'in'       => in_array($value, explode(',', (string) $param), true),
-            'same'     => $value === (string) ($data[$param] ?? ''),
+            'same'     => is_scalar($data[$param] ?? '') && $value === (string) ($data[$param] ?? ''),
         };
     }
 }

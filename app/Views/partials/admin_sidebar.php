@@ -16,10 +16,10 @@ $adminLinks = [
         <?php endforeach; ?>
     </nav>
     <div class="admin-sidebar__foot">
-        <a href="<?= url('/') ?>"><?= icon('left', 18) ?><span>Về trang web</span></a>
+        <a href="<?= url('/') ?>" aria-label="Về trang web"><?= icon('left', 18) ?><span>Về trang web</span></a>
         <form action="<?= url('/logout') ?>" method="post">
             <?= csrf_field() ?>
-            <button type="submit"><?= icon('logout', 18) ?><span>Đăng xuất</span></button>
+            <button type="submit" aria-label="Đăng xuất"><?= icon('logout', 18) ?><span>Đăng xuất</span></button>
         </form>
     </div>
 </aside>

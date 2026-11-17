@@ -14,7 +14,7 @@
             <?php if (error('category_id')): ?><p class="field-error"><?= e(error('category_id')) ?></p><?php endif; ?>
         </div>
 
-        <?php $f = ['name' => 'price', 'label' => 'Giá (VNĐ)', 'type' => 'number', 'value' => isset($item['price']) ? (int) $item['price'] : '', 'attrs' => 'required min="0" step="1000"']; require BASE_PATH . '/app/Views/partials/field.php'; ?>
+        <?php $f = ['name' => 'price', 'label' => 'Giá (VNĐ)', 'type' => 'number', 'value' => isset($item['price']) ? (int) $item['price'] : '', 'attrs' => 'required min="1" step="1" max="999999999999"']; require BASE_PATH . '/app/Views/partials/field.php'; ?>
         <?php $f = ['name' => 'description', 'label' => 'Mô tả', 'type' => 'textarea', 'value' => $item['description'] ?? '', 'attrs' => 'maxlength="1000"', 'full' => true]; require BASE_PATH . '/app/Views/partials/field.php'; ?>
 
         <div class="field field--full">

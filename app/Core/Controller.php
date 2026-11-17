@@ -8,6 +8,9 @@ abstract class Controller
 {
     protected function view(string $view, array $data = [], ?string $layout = 'main'): void
     {
+        if ($layout === 'main') {
+            $data['navigationCategories'] = \App\Models\Category::ordered();
+        }
         View::render($view, $data, $layout);
     }
 
@@ -27,6 +30,9 @@ abstract class Controller
     protected function input(string $key, mixed $default = null): mixed
     {
         $value = $_POST[$key] ?? $_GET[$key] ?? $default;
+        if (is_array($value) || is_object($value)) {
+            return $default;
+        }
         return is_string($value) ? trim($value) : $value;
     }
 
@@ -42,7 +48,7 @@ abstract class Controller
 
         if ($errors !== []) {
             $_SESSION['_errors'] = $errors;
-            $_SESSION['_old'] = array_diff_key($_POST, array_flip(['password', 'password_confirmation', 'csrf_token']));
+            $_SESSION['_old'] = array_diff_key(array_filter($_POST, 'is_scalar'), array_flip(['password', 'password_confirmation', 'csrf_token']));
             $this->redirect($backTo);
         }
 

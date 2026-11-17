@@ -1,28 +1,37 @@
 # Yumio — Website đặt đồ ăn nhanh (CNWeb)
 
 Website đặt đồ ăn nhanh, viết bằng **PHP thuần theo mô hình MVC** và **MySQL**.
-Giao diện tham khảo [leon.co](https://leon.co/), gồm nền kem, logo ở giữa, ảnh lớn, thẻ món có nền màu và nút bo tròn dạng viên thuốc.
-Phần chuyển động theo skill `apple-design` (`.claude/skills/apple-design`).
+Giao diện **Modern Playful Maximalism**: trắng, đỏ, be, vàng và đen, typography lớn, thẻ món có chiều sâu, poster hero và About kể chuyện. Giữ cấu trúc MVC và nghiệp vụ của nhóm. Tham khảo định hướng motion/storytelling của Henrietta, Agrumea Farm và Neutomni; không sao chép tài nguyên từ các trang đó.
+Motion dùng CSS/JavaScript nhẹ, IntersectionObserver và parallax giới hạn, hỗ trợ `prefers-reduced-motion`. Xanh lá chỉ làm điểm nhấn trạng thái/minh hoạ.
 
 ## Chức năng
 
 **Khách hàng**
 - Trang chủ có banner, carousel món nổi bật kéo được, khối combo, danh mục, cửa hàng và lời mời đăng ký thành viên.
-- Thực đơn theo danh mục, trang chi tiết món, tìm kiếm món theo tên.
+- `/menu` hiển thị toàn bộ món đang bán, chia section theo danh mục có món; tab sticky cuộn nhanh và tự active theo vị trí đọc. URL danh mục cũ dẫn tới section tương ứng. Giữ trang chi tiết món và tìm kiếm theo tên.
 - Giỏ hàng lưu trong session:
   - Thêm món bằng AJAX, có popover xác nhận.
   - Tăng giảm số lượng không cần tải lại trang.
   - Có thanh tiến độ tới mức miễn phí giao hàng.
 - Đăng ký, đăng nhập; form kiểm tra lỗi ngay khi rời ô nhập, và kiểm tra lại ở server.
-- Thanh toán (COD hoặc chuyển khoản), lịch sử đơn, theo dõi trạng thái, huỷ đơn khi còn chờ xác nhận.
+- Đặt COD, lưu đơn/chi tiết/lịch sử trạng thái bằng transaction MySQL. Chống gửi trùng checkout và tính tiền tại server.
+- Lịch sử đơn, tiến trình giao hàng, huỷ đơn khi còn chờ xác nhận.
+- Checkout hiển thị địa chỉ → bản đồ tự mở → ghi chú → xem lại đơn. Gợi ý địa chỉ Việt Nam bằng Photon/OpenStreetMap có debounce/cache/giới hạn request; chọn gợi ý cập nhật ghim và zoom. Sửa địa chỉ bỏ ghim cũ; bản đồ/API lỗi vẫn nhập tay để đặt COD.
+- Checkout hai bước: nhập thông tin → xem lại → chủ động xác nhận. Enter trong ô nhập không tạo đơn, kể cả khi tắt JavaScript.
 
 **Quản trị (`/admin`)**
 - Tổng quan: doanh thu, số đơn, đơn chờ xác nhận, món bán chạy.
 - CRUD món ăn và danh mục:
   - Upload ảnh JPG, PNG hoặc WebP; kiểm tra MIME thật của file.
   - Chọn màu nền thẻ, xem trước ảnh.
-- Lọc đơn hàng theo trạng thái và cập nhật trạng thái.
+- Lọc đơn hàng, cập nhật theo thứ tự trạng thái, phân công nhân viên giao hàng.
 - Danh sách người dùng kèm số đơn và tổng chi tiêu.
+- Cấp vai trò giao hàng cho tài khoản khách hàng; không tự cấp vai trò admin qua đăng ký.
+
+**Nhân viên giao hàng (`/shipper`)**
+- Xem các đơn được phân công, địa chỉ, ghi chú và bản đồ.
+- Nhận món từ bếp, bắt đầu giao và xác nhận giao thành công.
+- Không truy cập được quản trị hoặc đơn của tài xế khác.
 
 **Bảo mật**
 - PDO prepared statement.
@@ -33,24 +42,29 @@ Phần chuyển động theo skill `apple-design` (`.claude/skills/apple-design`
 ## Yêu cầu
 
 - PHP >= 8.1 (extension `pdo_mysql`, `fileinfo`, `mbstring`)
-- MySQL 8+ hoặc MariaDB 10.5+
+- MySQL 8+ hoặc MariaDB 10.4+; đã chạy thực tế trên XAMPP MariaDB 10.4.32.
+- Extension `curl` dùng cho gợi ý địa chỉ và script kiểm thử HTTP. Thiếu extension này thì đặt hàng nhập tay vẫn hoạt động.
 
 ## Cài đặt
 
-```bash
-# 1. Tạo CSDL và dữ liệu mẫu (6 danh mục, 30 món, 8 đơn hàng mẫu)
-mysql -u root -p < database/schema.sql
-mysql -u root -p < database/seed.sql
+**XAMPP/phpMyAdmin:** xem [hướng dẫn import và cấu hình MySQL](docs/MYSQL_SETUP.md). Dùng schema cho database mới; không chạy lại seed trên database có dữ liệu.
 
-# 2. Sửa thông tin kết nối trong config/database.php (hoặc dùng biến môi trường)
+Database đã import thì **không chạy lại schema hoặc seed**. Bật MySQL trong XAMPP, chạy từ thư mục repository bằng PowerShell:
 
-# 3. Chạy server
-php -S localhost:8000 -t public
-# hoặc: DB_PASSWORD=secret DB_PORT=3306 php -S localhost:8000 -t public
+```powershell
+cd 'C:\Bai_tap_DH\Nam_3\Cong_nghe_web\Food-Ordering-Web-CNWeb'
+$env:DB_HOST = '127.0.0.1'
+$env:DB_PORT = '3306'
+$env:DB_DATABASE = 'yumio'
+$env:DB_USERNAME = 'root'
+$env:DB_PASSWORD = ''
+$env:APP_URL = 'http://localhost:8000'
+& 'C:\xampp\php\php.exe' -S localhost:8000 -t public public/router.php
 ```
 
-Nếu dùng XAMPP: đặt thư mục dự án vào `htdocs` rồi đổi `url` trong `config/app.php`
-thành `http://localhost/Food-Ordering-Web-CNWeb` (hoặc đặt biến `APP_URL`).
+Mở **http://localhost:8000**. Nếu cổng 8000 đang có server dự án chạy, dùng lại server đó. Có PHP trong PATH thì thay đường dẫn trên bằng `php`. Không cần chuyển repository vào `htdocs`; Apache chỉ cần cho phpMyAdmin. Dự án không dùng Java, Composer, npm hay bước build.
+
+Tên biến đúng là `DB_DATABASE`, `DB_USERNAME`; ứng dụng chưa tự nạp `.env`. Tài khoản/mật khẩu MySQL khác nên được đặt qua biến môi trường, không đưa vào source. Muốn chạy Apache thay built-in server, đặt DocumentRoot vào `public/`, bật `mod_rewrite`/`AllowOverride` và cấu hình `APP_URL` tương ứng.
 
 **Tài khoản demo**
 
@@ -58,10 +72,31 @@ thành `http://localhost/Food-Ordering-Web-CNWeb` (hoặc đặt biến `APP_URL
 | --- | --- | --- |
 | Quản trị | `admin@yumio.vn` | `admin123` |
 | Khách hàng | `khach@yumio.vn` | `123456` |
+| Giao hàng | `shipper@yumio.vn` | `123456` |
+
+Luồng demo: khách đặt COD → admin xác nhận → chuẩn bị → phân công tài xế → tài xế bắt đầu giao → hoàn thành → khách mở chi tiết để xem lịch sử.
+
+## Tài liệu và kiểm thử
+
+- [Kiến trúc MVC, frontend/backend/database](docs/ARCHITECTURE.md)
+- [Cấu hình và import MySQL bằng phpMyAdmin](docs/MYSQL_SETUP.md)
+- [Kết quả kiểm thử, dữ liệu test và giới hạn](docs/TEST_REPORT.md)
+- [Báo cáo các file thay đổi](docs/CHANGE_REPORT.md)
+- [Thiết kế, checkout an toàn, geocoding và kiểm thử UI mới](docs/UI_UX.md)
+
+Kiểm thử tích hợp khi server đã chạy:
+
+```powershell
+php scripts/smoke.php --write
+```
+
+Script dùng dữ liệu seed/demo, tạo tài khoản/đơn/danh mục/món và ảnh thử có nhãn riêng, giữ lại dữ liệu sau test; chỉ nên chạy khi muốn tạo thêm dữ liệu kiểm thử. `scripts/setup.php --seed` chỉ dành cho database trống; `scripts/migrate.php` dành cho schema cũ. Không cần hai lệnh đó trên database vừa import schema mới.
+
+Chưa có GPS tài xế thời gian thực, định tuyến đường bộ hoặc thanh toán online. Gợi ý địa chỉ phụ thuộc dữ liệu Photon/OSM và có thể không có đầy đủ số nhà hoặc tên hành chính cũ. Tiến trình được làm mới khi tải trang; bản đồ dùng khoảng cách đường chim bay và phí cố định. Các đơn `bank` cũ vẫn hiển thị trong lịch sử, đơn mới chỉ nhận COD.
 
 ## Thiết kế và chuyển động
 
-| Nguyên tắc (apple-design) | Áp dụng |
+| Kỹ thuật tương tác | Áp dụng |
 | --- | --- |
 | Phản hồi ngay khi nhấn | `:active { transform: scale(.97) }` cho nút, chip, stepper |
 | Spring, có thể ngắt giữa chừng | Lớp `Spring` (damping ratio + response) trong `main.js` |
@@ -114,7 +149,7 @@ Food-Ordering-Web-CNWeb/
 │   ├── assets/images/           # Ảnh món mẫu (WebP), banner, favicon
 │   └── uploads/                 # Ảnh do admin upload (không commit)
 ├── storage/logs/
-└── .claude/skills/apple-design/ # Skill thiết kế dùng cho dự án
+└── .claude/skills/apple-design/ # Tài liệu kỹ thuật cũ, được giữ lại
 ```
 
 ## Luồng xử lý một request

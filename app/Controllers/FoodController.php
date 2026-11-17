@@ -13,7 +13,19 @@ class FoodController extends Controller
     // GET /menu
     public function index(): void
     {
-        $this->view('food/index', ['title' => 'Thực đơn', 'categories' => Category::ordered()]);
+        // Tái sử dụng Model hiện có: hai truy vấn, không query lặp theo từng danh mục.
+        $byCategory = [];
+        foreach (Food::where('is_available', 1) as $food) {
+            $byCategory[(int) $food['category_id']][] = $food;
+        }
+        $sections = [];
+        foreach (Category::ordered() as $category) {
+            $foods = $byCategory[(int) $category['id']] ?? [];
+            if (!$foods) continue;
+            usort($foods, fn ($a, $b) => (int) $a['id'] <=> (int) $b['id']);
+            $sections[] = $category + ['foods' => $foods];
+        }
+        $this->view('food/index', ['title' => 'Thực đơn', 'sections' => $sections]);
     }
 
     // GET /menu/{slug}
@@ -21,12 +33,9 @@ class FoodController extends Controller
     {
         $category = Category::findBySlug($slug) ?? $this->notFound();
 
-        $this->view('food/category', [
-            'title'      => $category['name'],
-            'category'   => $category,
-            'categories' => Category::ordered(),
-            'foods'      => Food::byCategory((int) $category['id']),
-        ]);
+        // Giữ URL cũ hoạt động, dùng chung một giao diện thực đơn liên tục.
+        $anchor = Food::byCategory((int) $category['id']) ? '#menu-category-' . $category['id'] : '';
+        $this->redirect('/menu' . $anchor);
     }
 
     // GET /foods/{slug}

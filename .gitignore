@@ -10,3 +10,16 @@ public/uploads/*/*
 .idea/
 .vscode/
 .DS_Store
+.runtime/
+storage/cache/*
+!storage/cache/.gitkeep
+
+# Cấu hình riêng, thông tin xác thực và file chạy tạm
+.env
+.env.*
+!.env.example
+*.log
+*.pid
+*.cookies
+*.pem
+*.key

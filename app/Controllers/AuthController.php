@@ -41,7 +41,7 @@ class AuthController extends Controller
         unset($_SESSION['intended']);
 
         flash('success', 'Chào mừng trở lại, ' . $user['name'] . '!');
-        $this->redirect($intended ?? ($user['role'] === 'admin' ? '/admin' : '/'));
+        $this->redirect($intended ?? match ($user['role']) { 'admin' => '/admin', 'shipper' => '/shipper', default => '/' });
     }
 
     public function showRegister(): void
@@ -74,12 +74,20 @@ class AuthController extends Controller
             $this->redirect('/register');
         }
 
-        $id = User::create([
+        try {
+            $id = User::create([
             'name'     => $data['name'],
             'email'    => $data['email'],
             'phone'    => $data['phone'],
             'password' => password_hash($data['password'], PASSWORD_DEFAULT),
-        ]);
+            ]);
+        } catch (\PDOException $e) {
+            // UNIQUE email vẫn là lớp bảo vệ cuối khi hai request đăng ký đồng thời.
+            if (($e->errorInfo[1] ?? null) !== 1062) { throw $e; }
+            $_SESSION['_errors'] = ['email' => 'Email này đã được sử dụng.'];
+            $_SESSION['_old'] = array_intersect_key($data, array_flip(['name', 'email', 'phone']));
+            $this->redirect('/register');
+        }
 
         // Đăng nhập luôn sau khi đăng ký
         session_regenerate_id(true);
@@ -88,7 +96,9 @@ class AuthController extends Controller
         $_SESSION['user'] = $user;
 
         flash('success', 'Tạo tài khoản thành công. Chúc bạn ngon miệng!');
-        $this->redirect($_SESSION['intended'] ?? '/');
+        $intended = $_SESSION['intended'] ?? '/';
+        unset($_SESSION['intended']);
+        $this->redirect($intended);
     }
 
     public function logout(): void
@@ -96,6 +106,7 @@ class AuthController extends Controller
         $_SESSION = [];
         session_destroy();
         session_start();
+        session_regenerate_id(true);
         flash('success', 'Bạn đã đăng xuất.');
         $this->redirect('/');
     }

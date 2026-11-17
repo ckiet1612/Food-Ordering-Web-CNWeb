@@ -1,6 +1,6 @@
 /* ==========================================================================
    Yumio — giao diện khách hàng
-   Phong cách tham khảo leon.co: nền kem, logo giữa, ảnh lớn, nút viên thuốc.
+   Yumio: nền kem, màu cam ấm, điểm nhấn xanh và typography tương phản.
    Chuyển động theo nguyên tắc Apple: phản hồi tức thì, spring, có thể ngắt.
    ========================================================================== */
 
@@ -8,7 +8,7 @@
     --cream: #fffdf7;
     --cream-2: #fff9e9;
     --cream-3: #fff3d6;
-    --ink: #2d2d2d;
+    --ink: #203c31;
     --ink-soft: #5c5a55;
     --ink-faint: #8b8880;
     --line: rgba(45, 45, 45, 0.14);
@@ -30,7 +30,7 @@
 
     --container: 1200px;
     --gutter: clamp(20px, 4vw, 48px);
-    --section-space: clamp(88px, 11vw, 176px);
+    --section-space: clamp(64px, 8vw, 128px);
     --radius: 18px;
     --radius-sm: 12px;
     --pill: 999px;
@@ -1193,7 +1193,7 @@ a.tile-media:hover img,
 
 .timeline {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 8px;
     margin-bottom: 8px;
 }
@@ -1367,4 +1367,57 @@ a.tile-media:hover img,
     .site-header { background: var(--cream); border-bottom: 1px solid var(--ink); }
     .popover,
     .cart-popover { background: var(--white); box-shadow: 0 0 0 2px var(--ink); }
+}
+
+/* Hoàn thiện giao diện đặt món và giao hàng, tái sử dụng token hiện có. */
+.home-eyebrow { text-align: center; margin-bottom: 12px; }
+.hero--product { --hero-bg: #e75d37; min-height: clamp(520px, 70vh, 740px); }
+.hero--product .hero__brand { margin: 0 0 22px; font-size: .75rem; letter-spacing: .13em; text-transform: uppercase; }
+.hero--product .hero__content { max-width: min(58%, 820px); padding-inline: max(var(--gutter), calc((100vw - 1320px) / 2)); }
+.hero--product .hero__title { text-shadow: none; }
+.hero--product .hero__lead, .hero--product .hero__actions { margin-left: 0; }
+.hero--product .hero__lead { max-width: 30em; font-weight: 400; }
+.hero--product .btn--light { background: #d9edaa; color: #203c31; }
+.hero--product .hero__tag { min-height: auto; padding: 10px 0; background: none; backdrop-filter: none; font-size: .8rem; }
+.service-strip { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 16px 40px; padding: 23px var(--gutter); background: #e8edda; font-size: .82rem; font-weight: 500; }
+.service-strip span, .service-strip a { display: inline-flex; align-items: center; gap: 9px; }
+.service-strip a { text-decoration: underline; text-underline-offset: 4px; }
+.food-tile .tile-media, .category-tile .tile-media { border-radius: 20px; }
+.food-tile__name { font-weight: 600; text-decoration: none; }
+.food-tile__body { align-items: flex-start; }
+.food-tile__price { color: #ab381b; }
+.summary { border: 1px solid var(--line); box-shadow: 0 18px 60px rgba(32,60,49,.04); }
+.shipping-policy { font-size: .78rem; line-height: 1.65; }
+.status--preparing { background: #f0e6ff; color: #6c3fa1; }
+.event-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 20px; }
+.event-list li { display: grid; grid-template-columns: 12px minmax(0,1fr); gap: 14px; align-items: start; }
+.event-list strong { display: block; font-size: .9rem; font-weight: 500; overflow-wrap: anywhere; }
+.event-list time { display: block; font-size: .76rem; color: var(--ink-soft); margin-top: 4px; }
+.event-dot { width: 9px; height: 9px; margin-top: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 4px #e1f3e7; }
+.order-events { margin-top: 20px; }
+.order-events > p { font-size: .82rem; }
+.delivery-map { display: grid; gap: 14px; border-top: 1px solid var(--line); padding-top: 20px; margin-top: 8px; min-width: 0; }
+.delivery-map__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.delivery-map__head strong { display: inline-flex; align-items: center; gap: 7px; font-size: .9rem; }
+.delivery-map p, .delivery-map > a { font-size: .8rem; line-height: 1.65; }
+.delivery-map__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.delivery-map__canvas { height: 310px; width: 100%; border-radius: 16px; overflow: hidden; z-index: 0; border: 1px solid var(--line); }
+.delivery-map .leaflet-container { font-family: var(--font-sans); }
+.delivery-map .leaflet-control-attribution a { text-decoration: underline; }
+.info-list dd, .order-card__meta { overflow-wrap: anywhere; }
+.timeline__step { min-width: 0; }
+.btn:disabled { opacity: .5; cursor: wait; }
+@media (max-width: 820px) {
+    .hero--product .hero__content { max-width: 100%; padding-bottom: min(88vw, 470px); }
+    .hero--product { min-height: 0; }
+    .hero--product .hero__brand { margin-bottom: 16px; font-size: .66rem; }
+    .service-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: .72rem; }
+}
+@media (max-width: 560px) {
+    .food-tile__price { font-size: .84rem; }
+    .food-tile .tile-media, .category-tile .tile-media { border-radius: 14px; }
+    .summary { padding: 22px; }
+    .timeline { grid-template-columns: 1fr 1fr; }
+    .delivery-map__canvas { height: 260px; }
+    .hero__actions { gap: 4px; }
 }
