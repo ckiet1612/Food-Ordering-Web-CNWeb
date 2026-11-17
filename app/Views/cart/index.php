@@ -16,7 +16,7 @@
         <div class="checkout-layout" data-cart-page>
             <div class="cart-list">
                 <?php foreach ($cart['items'] as $item): ?>
-                    <div class="cart-row" data-cart-row data-price="<?= (int) $item['price'] ?>">
+                    <div class="cart-row" data-cart-row data-food-id="<?= (int) $item['id'] ?>" data-price="<?= (int) $item['price'] ?>">
                         <a href="<?= url('/foods/' . $item['slug']) ?>" class="tile-media cart-row__thumb" style="--tile-bg: <?= e($item['bg_color']) ?>">
                             <img src="<?= image_url($item['image']) ?>" alt="<?= e($item['name']) ?>" loading="lazy">
                         </a>

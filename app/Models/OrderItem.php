@@ -13,7 +13,7 @@ class OrderItem extends Model
     public static function byOrder(int $orderId): array
     {
         $stmt = static::db()->prepare(
-            'SELECT oi.*, f.name, f.slug, f.image, f.bg_color FROM order_items oi
+            'SELECT oi.*, COALESCE(oi.food_name, f.name) AS name, f.slug, f.image, f.bg_color FROM order_items oi
              JOIN foods f ON f.id = oi.food_id
              WHERE oi.order_id = ?'
         );

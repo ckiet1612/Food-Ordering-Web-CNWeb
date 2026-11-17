@@ -409,10 +409,10 @@
         $$('[data-cart-count-inline]').forEach((el) => { el.textContent = count; });
     }
 
-    async function postForm(form) {
+    async function postForm(form, body = new FormData(form)) {
         const response = await fetch(form.action, {
             method: 'POST',
-            body: new FormData(form),
+            body,
             headers: { Accept: 'application/json' },
             credentials: 'same-origin',
         });
@@ -428,6 +428,8 @@
             event.preventDefault();
 
             const button = $('button[type="submit"]', form);
+            if (form.dataset.saving === '1') return;
+            form.dataset.saving = '1';
             button?.classList.add('is-loading');
 
             try {
@@ -445,6 +447,7 @@
                 showToast(error.message, 'error');
             } finally {
                 button?.classList.remove('is-loading');
+                delete form.dataset.saving;
             }
         });
     }
@@ -474,6 +477,7 @@
             minus.addEventListener('click', () => set(Number(input.value) - 1));
             plus.addEventListener('click', () => set(Number(input.value) + 1));
             input.addEventListener('change', sync);
+            input.addEventListener('cart:sync', sync);
             input.addEventListener('blur', () => set(Number(input.value)));
             sync();
         });
@@ -501,37 +505,87 @@
             updateCartCount(data.count);
         };
 
+        // Một hàng đợi cho toàn giỏ; bỏ debounce để thao tác xoá/checkout không vượt cập nhật.
+        let queue = Promise.resolve();
+        let pending = 0;
+        let failed = false;
+        let latest = null;
+        const checkout = $('a[href="' + window.YUMIO.checkoutUrl + '"]', page);
+        const enqueue = (job) => {
+            pending++;
+            page.setAttribute('aria-busy', 'true');
+            if (checkout) checkout.textContent = 'Đang lưu giỏ hàng…';
+            queue = queue.then(job).catch((error) => {
+                failed = true;
+                showToast(error.message + ' Hãy tải lại giỏ hàng để kiểm tra.', 'error');
+            }).finally(() => {
+                pending--;
+                if (pending === 0) {
+                    page.setAttribute('aria-busy', 'false');
+                    if (checkout) checkout.textContent = failed ? 'Tải lại giỏ hàng' : 'Đặt hàng';
+                    if (latest) {
+                        latest.items.forEach((item) => {
+                            const row = $(`[data-food-id="${item.id}"]`, page);
+                            if (!row) return;
+                            const input = $('input[name="quantity"]', row);
+                            input.value = item.quantity;
+                            input.dispatchEvent(new Event('cart:sync'));
+                            $('[data-line-total]', row).textContent = item.line_total;
+                        });
+                    }
+                }
+            });
+        };
+        checkout?.addEventListener('click', async (event) => {
+            event.preventDefault();
+            // Đợi toàn bộ thay đổi đã gửi; không chuyển trang làm mất request đang chờ.
+            while (pending > 0) await queue;
+            window.location.assign(failed ? window.YUMIO.cartUrl : checkout.href);
+        });
+
         $$('[data-cart-row]', page).forEach((row) => {
             const updateForm = $('[data-cart-update]', row);
             const removeForm = $('[data-cart-remove]', row);
             const lineTotal = $('[data-line-total]', row);
             const price = Number(row.dataset.price);
-            let timer = 0;
+            let removing = false;
 
             updateForm.addEventListener('change', () => {
-                const quantity = Number($('input[name="quantity"]', updateForm).value);
+                if (removing) return;
+                const input = $('input[name="quantity"]', updateForm);
+                const quantity = Math.max(1, Math.min(Number(input.max), Math.trunc(Number(input.value)) || 1));
+                input.value = quantity;
+                input.dispatchEvent(new Event('cart:sync'));
                 lineTotal.textContent = formatPrice(price * quantity); // phản hồi tức thì
-                clearTimeout(timer);
-                timer = setTimeout(() => {
-                    postForm(updateForm).then(applySummary).catch((error) => showToast(error.message, 'error'));
-                }, 250);
+                const body = new FormData(updateForm);
+                enqueue(async () => {
+                    const data = await postForm(updateForm, body);
+                    latest = data;
+                    applySummary(data);
+                });
             });
             updateForm.addEventListener('submit', (event) => event.preventDefault());
 
             removeForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
+                if (removing) return;
+                removing = true;
                 row.classList.add('is-removing');
-                try {
+                enqueue(async () => {
+                  try {
                     const data = await postForm(removeForm);
+                    latest = data;
                     applySummary(data);
                     setTimeout(() => {
                         row.remove();
                         if (data.count === 0) window.location.reload();
                     }, reduceMotion.matches ? 0 : 300);
-                } catch (error) {
+                  } catch (error) {
+                    removing = false;
                     row.classList.remove('is-removing');
-                    showToast(error.message, 'error');
-                }
+                    throw error;
+                  }
+                });
             });
         });
     }
@@ -551,9 +605,12 @@
                 if (v.typeMismatch && input.type === 'email') return 'Email không đúng định dạng.';
                 if (v.patternMismatch) return input.dataset.patternMessage || 'Giá trị không hợp lệ.';
                 if (v.tooShort) return `Cần ít nhất ${input.minLength} ký tự.`;
+                if (v.tooLong) return `Tối đa ${input.maxLength} ký tự.`;
                 if (v.rangeUnderflow) return `Giá trị tối thiểu là ${input.min}.`;
+                if (v.rangeOverflow) return `Giá trị tối đa là ${input.max}.`;
+                if (v.stepMismatch || v.badInput) return 'Vui lòng nhập giá trị hợp lệ.';
                 if (v.customError) return input.validationMessage;
-                return '';
+                return 'Vui lòng kiểm tra lại thông tin.';
             };
 
             const check = (input) => {
@@ -592,6 +649,8 @@
             });
 
             form.addEventListener('submit', (event) => {
+                if (event.defaultPrevented) return;
+                if (form.dataset.saving === '1') { event.preventDefault(); return; }
                 const invalid = fields.filter((input) => !check(input));
                 if (invalid.length) {
                     event.preventDefault();
@@ -599,8 +658,97 @@
                     return;
                 }
                 $('button[type="submit"]', form)?.classList.add('is-loading');
+                form.dataset.saving = '1';
             });
         });
+    }
+
+    /* Thực đơn liên tục: dùng cùng thẻ món và giỏ AJAX, chỉ thêm điều hướng section. */
+    function initMenu() {
+        const page = $('[data-menu-page]');
+        const bar = $('[data-menu-tabs]', page || document);
+        if (!page || !bar) return;
+        const strip = $('.chip-nav', bar);
+        const tabs = $$('[data-menu-tab]', bar);
+        const sections = $$('[data-menu-section]', page);
+        const targets = new Map(sections.map(section => [section.id, section]));
+        const header = $('[data-header]');
+        let offset = 0, frame = 0, activeId = '', destination = null, releaseTimer;
+
+        const activate = (id) => {
+            if (id === activeId) return;
+            activeId = id;
+            tabs.forEach(tab => {
+                const active = tab.hash.slice(1) === id;
+                tab.classList.toggle('is-active', active);
+                if (active) tab.setAttribute('aria-current', 'location');
+                else tab.removeAttribute('aria-current');
+                if (active) {
+                    // Chỉ cuộn ngang thanh tab, không kéo cả trang như scrollIntoView().
+                    const box = strip.getBoundingClientRect(), item = tab.getBoundingClientRect();
+                    if (item.left < box.left + 6) strip.scrollLeft -= box.left + 6 - item.left;
+                    else if (item.right > box.right - 6) strip.scrollLeft += item.right - box.right + 6;
+                }
+            });
+        };
+        const update = () => {
+            frame = 0;
+            if (destination) {
+                if (Math.abs(destination.getBoundingClientRect().top - offset) > 3) return;
+                destination = null;
+            }
+            let current = sections[0];
+            for (const section of sections) {
+                if (section.getBoundingClientRect().top <= offset + 24) current = section;
+                else break;
+            }
+            if (current) activate(current.id);
+        };
+        const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+        const measure = () => {
+            const headerHeight = Math.ceil(header?.getBoundingClientRect().height || 0);
+            document.documentElement.style.setProperty('--menu-header-offset', `${headerHeight}px`);
+            const barHeight = Math.ceil(bar.getBoundingClientRect().height);
+            document.documentElement.style.setProperty('--menu-tabs-height', `${barHeight}px`);
+            offset = headerHeight + barHeight;
+            schedule();
+        };
+        const release = () => { destination = null; clearTimeout(releaseTimer); schedule(); };
+        const go = (section, smooth) => {
+            measure();
+            destination = section;
+            activate(section.id);
+            clearTimeout(releaseTimer);
+            window.scrollTo({ top: Math.max(0, section.getBoundingClientRect().top + scrollY - offset), behavior: smooth && !reduceMotion.matches ? 'smooth' : 'auto' });
+            releaseTimer = setTimeout(release, 1200);
+            schedule();
+        };
+        tabs.forEach(tab => tab.addEventListener('click', event => {
+            if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+            const section = targets.get(tab.hash.slice(1));
+            if (!section) return;
+            event.preventDefault();
+            if (location.hash !== tab.hash) history.pushState(null, '', tab.hash);
+            go(section, true);
+        }));
+        addEventListener('scroll', schedule, { passive: true });
+        addEventListener('scrollend', event => {
+            // Cuộn ngang thanh tab không được ngắt trạng thái cuộn tới section.
+            if (event.target === document || event.target === window) release();
+        });
+        addEventListener('wheel', release, { passive: true });
+        addEventListener('touchstart', release, { passive: true });
+        addEventListener('resize', measure, { passive: true });
+        const anchor = () => {
+            const section = targets.get(location.hash.slice(1));
+            if (section) go(section, false);
+        };
+        addEventListener('hashchange', anchor);
+        const observer = new ResizeObserver(measure);
+        if (header) observer.observe(header);
+        observer.observe(bar);
+        measure();
+        document.fonts.ready.then(() => { measure(); anchor(); });
     }
 
     /* ----------------------------------------------------------------------
@@ -626,7 +774,15 @@
         initAddToCart();
         initSteppers();
         initCartPage();
+        initMenu();
         initValidation();
         initFooter();
+    });
+    window.addEventListener('pageshow', (event) => {
+        if (!event.persisted) return;
+        $$('form[data-validate]').forEach((form) => {
+            delete form.dataset.saving;
+            $('button[type="submit"]', form)?.classList.remove('is-loading');
+        });
     });
 })();

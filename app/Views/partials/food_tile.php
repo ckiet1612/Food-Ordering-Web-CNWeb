@@ -4,6 +4,7 @@ $tileShowAdd ??= true;
 $tileShowDesc ??= false;
 ?>
 <article class="food-tile">
+    <span class="food-tile__badge"><?= !empty($food['is_featured']) ? '✦ Yumio chọn' : 'Thêm chút ngon' ?></span>
     <a href="<?= url('/foods/' . $food['slug']) ?>" class="tile-media" style="--tile-bg: <?= e($food['bg_color']) ?>" tabindex="-1" aria-hidden="true">
         <img src="<?= image_url($food['image']) ?>" alt="" loading="lazy" draggable="false">
     </a>
@@ -12,7 +13,7 @@ $tileShowDesc ??= false;
         <form action="<?= url('/cart/add') ?>" method="post" class="quick-add" data-cart-add>
             <?= csrf_field() ?>
             <input type="hidden" name="food_id" value="<?= $food['id'] ?>">
-            <button type="submit" aria-label="Thêm <?= e($food['name']) ?> vào giỏ" data-done-icon='<?= icon('check', 20) ?>'><?= icon('plus', 20) ?></button>
+            <button type="submit" aria-label="Thêm <?= e($food['name']) ?> vào giỏ" data-done-icon='<?= icon('check', 24) ?>'><?= icon('plus', 24) ?></button>
         </form>
     <?php endif; ?>
 

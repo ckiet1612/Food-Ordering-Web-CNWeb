@@ -10,6 +10,13 @@ class User extends Model
 {
     protected static string $table = 'users';
 
+    public const ROLES = ['customer' => 'Khách hàng', 'admin' => 'Quản trị', 'shipper' => 'Nhân viên giao hàng'];
+
+    public static function shippers(): array
+    {
+        return static::db()->query("SELECT id, name, phone FROM users WHERE role = 'shipper' ORDER BY name, id")->fetchAll();
+    }
+
     public static function findByEmail(string $email): ?array
     {
         $stmt = static::db()->prepare('SELECT * FROM users WHERE email = ?');

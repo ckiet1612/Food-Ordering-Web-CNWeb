@@ -9,7 +9,7 @@
         <div class="carousel__track" data-carousel-track>
             <?php foreach ($carouselFoods as $food): ?>
                 <div class="carousel__slide">
-                    <?php $tileShowAdd = false; require __DIR__ . '/food_tile.php'; ?>
+                    <?php $tileShowAdd = true; require __DIR__ . '/food_tile.php'; ?>
                 </div>
             <?php endforeach; ?>
         </div>

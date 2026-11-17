@@ -1,9 +1,10 @@
-<section class="page-hero">
+<section class="page-hero menu-heading">
     <p class="eyebrow">Thực đơn</p>
     <h1><?= e($category['name']) ?></h1>
     <?php if ($category['description']): ?>
         <p><?= e($category['description']) ?></p>
     <?php endif; ?>
+    <span class="menu-heading__stamp" aria-hidden="true">CHỌN MÓN<br>CHỌN VUI ✷</span>
 </section>
 
 <div class="container container--wide" style="padding-bottom: var(--section-space)">
@@ -15,6 +16,7 @@
     </nav>
 
     <?php if ($foods): ?>
+        <div class="menu-section-label"><p><?= count($foods) ?> món, nhiều niềm vui.</p><span>CHỌN MÓN BẠN THÈM <?= icon('right', 22) ?></span></div>
         <div class="tile-grid tile-grid--4">
             <?php foreach ($foods as $food): ?>
                 <?php $tileShowAdd = true; $tileShowDesc = true; require BASE_PATH . '/app/Views/partials/food_tile.php'; ?>

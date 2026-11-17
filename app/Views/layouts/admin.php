@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Be+Vietnam+Pro:wght@400;500;600;700&family=Playfair+Display:wght@400;500&display=swap">
     <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/admin.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/yumio-theme.css') ?>">
 </head>
 <body class="admin">
     <?php require BASE_PATH . '/app/Views/partials/admin_sidebar.php'; ?>

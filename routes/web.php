@@ -13,12 +13,16 @@ use App\Controllers\OrderController;
 use App\Middlewares\AdminMiddleware;
 use App\Middlewares\AuthMiddleware;
 use App\Middlewares\CsrfMiddleware;
+use App\Middlewares\ShipperMiddleware;
+use App\Controllers\ShipperController;
+use App\Controllers\AddressController;
 
 /** @var App\Core\Router $router */
 
 $auth  = [AuthMiddleware::class];
 $admin = [AuthMiddleware::class, AdminMiddleware::class];
 $csrf  = [CsrfMiddleware::class];
+$shipper = [AuthMiddleware::class, ShipperMiddleware::class];
 
 // ---------- Khách hàng ----------
 $router->get('/', [HomeController::class, 'index']);
@@ -41,6 +45,8 @@ $router->post('/cart/update', [CartController::class, 'update'], $csrf);
 $router->post('/cart/remove', [CartController::class, 'remove'], $csrf);
 
 $router->get('/checkout', [OrderController::class, 'checkout'], $auth);
+$router->get('/addresses/search', [AddressController::class, 'search'], $auth);
+$router->post('/checkout/review', [OrderController::class, 'review'], [...$auth, ...$csrf]);
 $router->post('/checkout', [OrderController::class, 'store'], [...$auth, ...$csrf]);
 $router->get('/orders', [OrderController::class, 'index'], $auth);
 $router->get('/orders/{id}', [OrderController::class, 'show'], $auth);
@@ -66,5 +72,11 @@ $router->post('/admin/categories/{id}/delete', [AdminCategoryController::class, 
 $router->get('/admin/orders', [AdminOrderController::class, 'index'], $admin);
 $router->get('/admin/orders/{id}', [AdminOrderController::class, 'show'], $admin);
 $router->post('/admin/orders/{id}/status', [AdminOrderController::class, 'updateStatus'], [...$admin, ...$csrf]);
+$router->post('/admin/orders/{id}/assign', [AdminOrderController::class, 'assign'], [...$admin, ...$csrf]);
 
 $router->get('/admin/users', [AdminUserController::class, 'index'], $admin);
+$router->post('/admin/users/{id}/role', [AdminUserController::class, 'updateRole'], [...$admin, ...$csrf]);
+
+$router->get('/shipper', [ShipperController::class, 'index'], $shipper);
+$router->get('/shipper/orders/{id}', [ShipperController::class, 'show'], $shipper);
+$router->post('/shipper/orders/{id}/status', [ShipperController::class, 'updateStatus'], [...$shipper, ...$csrf]);

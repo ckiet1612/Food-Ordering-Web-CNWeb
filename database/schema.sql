@@ -9,7 +9,7 @@ CREATE TABLE users (
     password   VARCHAR(255) NOT NULL,
     phone      VARCHAR(20)  NULL,
     address    VARCHAR(255) NULL,
-    role       ENUM('customer', 'admin') NOT NULL DEFAULT 'customer',
+    role       ENUM('customer', 'admin', 'shipper') NOT NULL DEFAULT 'customer',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -50,9 +50,16 @@ CREATE TABLE orders (
     shipping_fee   DECIMAL(12, 0) NOT NULL DEFAULT 0,
     total_amount   DECIMAL(12, 0) NOT NULL,
     payment_method ENUM('cod', 'bank') NOT NULL DEFAULT 'cod',
-    status         ENUM('pending', 'confirmed', 'delivering', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
+    status         ENUM('pending', 'confirmed', 'preparing', 'delivering', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
+    shipper_id     INT UNSIGNED NULL,
+    checkout_token CHAR(64) NULL UNIQUE,
+    delivery_lat   DECIMAL(10,7) NULL,
+    delivery_lng   DECIMAL(10,7) NULL,
+    distance_km    DECIMAL(10,2) NULL,
     created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
+    FOREIGN KEY (shipper_id) REFERENCES users(id) ON DELETE RESTRICT,
+    INDEX idx_orders_shipper_status (shipper_id, status)
 ) ENGINE=InnoDB;
 
 CREATE TABLE order_items (
@@ -61,6 +68,19 @@ CREATE TABLE order_items (
     food_id  INT UNSIGNED NOT NULL,
     quantity INT UNSIGNED NOT NULL,
     price    DECIMAL(12, 0) NOT NULL COMMENT 'Giá tại thời điểm đặt hàng',
+    food_name VARCHAR(150) NULL COMMENT 'Tên món tại thời điểm đặt hàng',
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (food_id)  REFERENCES foods(id)  ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+CREATE TABLE order_events (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    order_id INT UNSIGNED NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    actor_id INT UNSIGNED NULL,
+    note VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_events_order (order_id, id)
 ) ENGINE=InnoDB;

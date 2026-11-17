@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Be+Vietnam+Pro:wght@400;500;600;700&family=Playfair+Display:wght@400;500&display=swap">
     <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/yumio-theme.css') ?>">
 </head>
 <body>
     <a class="skip-link" href="#main">Bỏ qua để tới nội dung</a>
@@ -25,5 +26,6 @@
 
     <script>window.YUMIO = { csrf: <?= json_encode(csrf_token()) ?>, cartUrl: <?= json_encode(url('/cart')) ?>, checkoutUrl: <?= json_encode(url('/checkout')) ?> };</script>
     <script src="<?= asset('js/main.js') ?>" defer></script>
+    <script src="<?= asset('js/motion.js') ?>" defer></script>
 </body>
 </html>

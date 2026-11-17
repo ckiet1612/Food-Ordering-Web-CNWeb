@@ -1,5 +1,5 @@
 <?php
-$steps = ['pending', 'confirmed', 'delivering', 'completed'];
+$steps = ['pending', 'confirmed', 'preparing', 'delivering', 'completed'];
 $currentStep = array_search($order['status'], $steps, true);
 ?>
 <div class="container container--wide">
@@ -30,15 +30,19 @@ $currentStep = array_search($order['status'], $steps, true);
                 <?php endif; ?>
             </section>
 
+            <?php require BASE_PATH . '/app/Views/partials/order_events.php'; ?>
+
             <section class="form-card">
                 <h2>Giao tới</h2>
                 <dl class="info-list">
                     <div><dt>Người nhận</dt><dd><?= e($order['receiver_name']) ?></dd></div>
                     <div><dt>Điện thoại</dt><dd><?= e($order['phone']) ?></dd></div>
                     <div><dt>Địa chỉ</dt><dd><?= e($order['address']) ?></dd></div>
+                    <div><dt>Giao hàng</dt><dd><?= $shipper ? e($shipper['name']) . ($shipper['phone'] ? ' · ' . e($shipper['phone']) : '') : 'Đang chờ phân công' ?></dd></div>
                     <div><dt>Thanh toán</dt><dd><?= e(App\Models\Order::PAYMENT_METHODS[$order['payment_method']]) ?></dd></div>
                     <?php if ($order['note']): ?><div><dt>Ghi chú</dt><dd><?= e($order['note']) ?></dd></div><?php endif; ?>
                 </dl>
+                <?php $mapMode = 'view'; $mapOrder = $order; require BASE_PATH . '/app/Views/partials/delivery_map.php'; ?>
             </section>
 
             <?php if ($order['status'] === 'pending'): ?>
